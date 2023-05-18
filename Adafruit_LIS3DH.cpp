@@ -252,6 +252,36 @@ int16_t Adafruit_LIS3DH::readADC(uint8_t adc) {
   return value;
 }
 
+void Adafruit_LIS3DH::setOrientation(void) {
+
+  Adafruit_BusIO_Register ctrl3 = Adafruit_BusIO_Register(
+      i2c_dev, spi_dev, ADDRBIT8_HIGH_TOREAD, LIS3DH_REG_CTRL3, 1);
+
+  Adafruit_BusIO_Register orient = Adafruit_BusIO_Register(
+    i2c_dev, spi_dev, ADDRBIT8_HIGH_TOREAD, LIS3DH_REG_INT1CFG, 1);
+
+  Adafruit_BusIO_Register int1ths = Adafruit_BusIO_Register(
+      i2c_dev, spi_dev, ADDRBIT8_HIGH_TOREAD, LIS3DH_REG_INT1THS, 1);
+
+  Adafruit_BusIO_Register int1dur = Adafruit_BusIO_Register(
+      i2c_dev, spi_dev, ADDRBIT8_HIGH_TOREAD, LIS3DH_REG_INT1DUR, 1);
+
+  Adafruit_BusIO_RegisterBits orient_dur =
+      Adafruit_BusIO_RegisterBits(&int1dur, 0, 6);
+
+  ctrl3.write(0x40);
+  orient.write(0x70);
+  int1ths.write(0x36);
+  orient_dur.write(0x3E);
+}
+
+uint8_t Adafruit_LIS3DH::getOrientation(void) {
+  Adafruit_BusIO_Register orient_reg = Adafruit_BusIO_Register(
+      i2c_dev, spi_dev, ADDRBIT8_HIGH_TOREAD, LIS3DH_REG_INT1SRC, 1);
+
+  return orient_reg.read();
+}
+
 /*!
  *   @brief  Set INT to output for single or double click
  *   @param  c
